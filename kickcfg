@@ -15,7 +15,7 @@ OS2=$(grep url /var/www/html/ksfiles/$3/$2.cfg | awk -Fimages/ '{print $2}' |sed
 
 if [ $# != 4 ] ; then
     if [ "$3" != generic ] ; then 
-        echo "usage is #kickcfg {server} {build} {customer} {os}, eg #kickcfg $1 $2 $3 rhel57x"
+        echo "usage is #kickcfg {server} {build} {customer} {os}"
         exit
     else
         OS=$BUILD
