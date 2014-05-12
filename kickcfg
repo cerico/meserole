@@ -2,7 +2,6 @@
 # 		 - Update - Sean McConkey
 
 # Set variables
-set -x
 BUILDDIR=/var/www/html/builds
 PXE=/var/www/html/pxefiles
 KSFILES=ksfiles
@@ -15,18 +14,18 @@ OS2=$(grep url /var/www/html/ksfiles/$3/$2.cfg | awk -Fimages/ '{print $2}' |sed
 
 
 if [ $# != 4 ] ; then
-    if [ $3 != generic ] ; then 
-        echo "usage is #kickcfg server build customer os, eg #kickcfg $1 $2 $3 $4"
+    if [ "$3" != generic ] ; then 
+        echo "usage is #kickcfg {server} {build} {customer} {os}, eg #kickcfg $1 $2 $3 rhel57x"
         exit
     else
         OS=$BUILD
     fi
 fi
 
-if [ $OS != $OS2 ] ; then
-    echo "looks like customer has upgraded since last time, before they were using $OS2. check which version is actually is and if its the newer one, youll need to run ksupdate, eg #ksupdate $2 $3 $4 (note - i havent written this yet, so you could just go edit /var/www/html/ksfiles/$3/$2.cfg for now but be careful if its a major upgrade rather than a minor"
-    exit
-fi
+#if [ $OS != $OS2 ] ; then
+#    echo "looks like customer has upgraded since last time, before they were using $OS2. check which version is actually is and if its the newer one, youll need to run ksupdate, eg #ksupdate $2 $3 $4 (note - i havent written this yet, so you could just go edit /var/www/html/ksfiles/$3/$2.cfg for now but be careful if its a major upgrade rather than a minor"
+#    exit
+#fi
 
 
  
@@ -52,18 +51,17 @@ fi
 #command needs to be run with SOME input - exits if run without parameters
 
 if [ $# = 0 ] ; then
-        echo "Usage : kickcfg {hostname} {version} {customer}	"
+        echo "Usage : kickcfg {hostname} {version} {customer} {build}	"
 	echo
 	echo "Note : If the hostname does not exist you will be prompted for the MAC Address."
 	echo "To find out the version run the kickver script."
 	echo "Pre-defined customers configs will be checked for & used if they exist."
 	echo
         exit
-
 fi
 
 if [ "$BUILD" = "" ] ; then
-echo "Usage : kickcfg {hostname} {version} {customer} "
+echo "Usage : kickcfg {hostname} {version} {customer} {build} "
         echo
         echo "Build & version required, select below."
         ls /var/www/html/builds/$CUSTOMER	
@@ -72,11 +70,15 @@ fi
 
 
 
+if [ "$OS" != "$OS2" ] ; then
+    echo "looks like customer has upgraded since last time, before they were using $OS2. check which version is actually is and if its the newer one, youll need to run ksupdate, eg #ksupdate $2 $3 $4 (note - i havent written this yet, so you could just go edit /var/www/html/ksfiles/$3/$2.cfg for now but be careful if its a major upgrade rather than a minor"
+    exit
+fi
 
 
 
 if [ "$CUSTOMER" = "" ] ; then
-echo "Usage : kickcfg {hostname} {version} {customer} "
+echo "Usage : kickcfg {hostname} {version} {customer} {build} "
         echo
         echo "Customer required, select customer below or add new customer."
 	echo
