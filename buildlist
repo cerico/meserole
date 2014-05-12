@@ -1,0 +1,17 @@
+customerlist=/var/www/html/builds/
+customer=$1
+builds=/var/www/html/builds/$customer
+usage="USAGE --: #buildlist (customername)"
+
+if [ $# == 0 ] ; then 
+    ls $customerlist
+elif [ $# == 1 ] ; then
+    if [ -d $builds ] ; then
+        ls $builds
+    else
+        echo "$1 don't have any specific files, but you can create them with kscreate and then try again"
+    fi
+else
+    echo $usage
+fi
+

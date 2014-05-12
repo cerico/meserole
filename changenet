@@ -1,0 +1,26 @@
+SYNTAX="syntax for this command is #changenet ipaddr netmask"
+changenet () {
+interface=/etc/sysconfig/network-scripts/ifcfg
+wob=$(for i in `ls /sys/class/net | grep eth`
+         do ifconfig $i  |grep -B 1 Mask | awk -F" "   '{print $1}'|grep eth;done)
+xob=$(mii-tool | grep -v $wob | awk -F:  '{print $1}')
+if [[ -f $interface-$xob ]] ; then
+        sed -i '/^IPA/d' $interface-$xob
+        sed -i '/^NETM/d' $interface-$xob
+        echo "IPADDR=$ip" >> $interface-$xob
+        echo "NETMASK=$net" >> $interface-$xob
+        sed -i s/ONBOOT=no/ONBOOT=yes/g $interface-$xob
+        sed -i s/dhcp/static/g $interface-$xob
+#       service network reload
+else echo "you need to stick in a network cable then rerun this"
+fi
+}
+
+
+#host=${1:?rerun but specify a hostname}
+ip=$1
+net=$2
+if (($# != 2)); then echo $SYNTAX 1>&2; exit; fi
+
+changenet
+

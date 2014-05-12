@@ -1,0 +1,16 @@
+#!/bin/sh
+mac_address_changer () {
+if `ifconfig $interface &>/dev/null` ; then
+correctmac=$(ifconfig $interface |grep -i hwadd| gawk -Fdr  '{print $2}'|sed 's/^[ ]//')
+wrongmac=$(grep -i hwaddr $FILE$interface|gawk -F= '{print $2}')
+sed -i "s;$wrongmac;$correctmac;g" $FILE$interface
+else echo interface $interface doesnt exist, run ifconfig to see which interface you are trying to change mac address of
+fi
+}
+
+interface=${1:?specify which ethernet interface}
+USAGE="#macchanger eth0"
+FILE=/etc/sysconfig/network-scripts/ifcfg-
+if [ $#  -gt 1 ] ; then echo  $USAGE 1>&2;exit;fi
+
+mac_address_changer

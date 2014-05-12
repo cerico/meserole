@@ -1,0 +1,92 @@
+#version 1.0 may 6th 2014
+customer=${1:?no customer specified}
+server=${2:?no server specified}
+os=${3:?no os specified}
+if (($# > 3)); then echo USAGE 1>&2; exit; fi
+count=70
+vgs=/var/www/html/customer/$customer/$server-vgs
+mapper=/var/www/html/customer/$customer/$server-mapper
+
+files_in_place () {
+    if [ -f $vgs ]  && [ -f $vgs ] ; then
+        os_setup
+    else
+        echo "your files arent in place - you need the output of df -m, saved as $server-mapper and the output of vgs, saved as $server-vgs"
+    fi
+}
+
+
+os_setup () {
+    if [ -f "/var/www/html/ksfiles/generic/$os.cfg" ] ; then
+        build_setup
+    else 
+        echo "os version is wrong, have a look here and try again"
+        for i in /var/www/html/ksfiles/generic/*cfg
+            do basename $i | awk -F. '{print $1}'
+            done
+            exit
+    fi
+}
+
+build_setup () {
+    if [ -f "/var/www/html/builds/generic/$os" ] ; then
+        cp /var/www/html/builds/generic/$os /var/www/html/builds/$customer/$server
+        sed -i "s;generic/$os.cfg;$customer/$server.cfg;g" /var/www/html/builds/$customer/$server
+        sed -i "s;$os;$server;g" /var/www/html/builds/$customer/$server
+    else
+        echo "something is wrong here, generic ksfile exists but buildfile doesnt - this isnt something to be fixed here, need to go investigate"
+        exit
+    fi
+area_setup
+}
+        
+
+area_setup () {
+    if [ -d "/var/www/html/ksfiles/$customer" ] ; then
+        if [ -f "/var/www/html/ksfiles/$customer/$server" ] ; then
+            echo "file exists already"
+            exit
+        else 
+            cp /var/www/html/ksfiles/generic/$os.cfg /var/www/html/ksfiles/$customer/$server.cfg
+        fi
+    else
+        mkdir /var/www/html/ksfiles/$customer
+        cp /var/www/html/ksfiles/generic/$os.cfg /var/www/html/ksfiles/$customer/$server.cfg
+    fi
+    bogs=/var/www/html/ksfiles/$customer/$server.cfg
+    make_volume_groups
+}
+
+make_volume_groups (){
+    ondsk=$(grep -m 1 ondisk /var/www/html/ksfiles/generic/$os.cfg | awk -F= '{print $2}')
+    for i in `cat $vgs | grep -v VG |awk -F" " '{print $6}' | sed  's/[a-z]$//'`
+        do 
+            let count=count+1
+            j=$(echo "$i * 1100" | bc | awk -F. '{print $1}')
+            sed -i "s;part pv.916*;part pv.$count --size $j --ondisk=$ondsk\n&;" $bogs
+        done
+    count=70
+    for k in `cat $vgs |grep -v VG| awk -F" " '{print $1}'`
+        do
+            let count=count+1
+            sed -i "s;volgroup sungard*;volgroup $k  --pesize=32768 pv.$count\n&;" $bogs
+        done
+    and_logvols
+}
+
+and_logvols() {
+               sed -i '/mapper/!d' $mapper
+               cat $mapper | while read line ; do
+                   vegee=$(echo $line | grep mapper | awk -F" " '{print $1}'| awk -F/ '{print $4}'|awk -F- '{print $1}')
+                   elvee=$(echo $line | grep mapper | awk -F" " '{print $1}'| awk -F/ '{print $4}'|awk -F- '{print $2}')
+                   mont=$(echo $line | grep mapper | awk -F" " '{print $6}')
+                   flsz=$(echo $line | grep mapper | awk -F" " '{print $4}')
+                   echo $vegee $elvee $mont $flsz >> ui
+                   sed -i "s;logvol swap*;logvol /$server$mont --fstype ext4 --name=$elvee --vgname=$vegee --size=$flsz\n&;" $bogs
+                   done
+               exit
+}
+
+files_in_place
+
+

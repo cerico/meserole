@@ -1,0 +1,7 @@
+SYNTAX="syntax is #printadd /fullpath/of/directory"
+chost=${1:?no path specified}
+if (($# > 1)); then echo $SYNTAX 1>&2; exit; fi
+sed -i "s;\(^PATH[\:\/a-zA-Z0-9\=\$\.]*$\);\1:$chost;g" /root/.bash_profile
+. /root/.bash_profile
+echo $PATH
+

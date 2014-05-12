@@ -1,0 +1,16 @@
+m0=/etc/modprobe.conf
+sed -i '/bond/d' $m0
+echo "alias bond0 bonding" >> $m0
+echo "options bond0 miimon=100 mode=1 >> $m0
+e0=/etc/sysconfig/network-scripts/ifcfg-eth0
+b0=/etc/sysconfig/network-scripts/ifcfg-bond0
+sed -i '/^IPADD/d' $e0
+sed -i '/^NETMASK/d' $e0
+echo "SLAVE=yes" >> $e0
+echo "MASTER=bond0" >> $e0
+sed -i '/DEVICE/d' $b0
+echo "DEVICE=bond0" >> $b0
+echo "IPADDR=10.75.1.76" >> $b0
+echo "NETMASK=255.255.255.0" >> $b0
+#
+sed -i s/ONBOOT=no/ONBOOT=yes/g $b0
