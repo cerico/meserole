@@ -1,0 +1,5 @@
+oldvmlinuz=`cat grub.conf  |grep -m 1 vmlinuz-2 | awk -F" "  '{print $2}'`
+newvmlinuz="vmlinuz-\${host}-\${image}"
+kernelline=`cat grub.conf |grep -m 1 vmlinuz-2`
+sed -i "s;initrd*g;$kernelline\n&;" postrestore.sh
+sed -i "s;$oldvmlinuz;$newvmlinuz;g" postrestore.sh
