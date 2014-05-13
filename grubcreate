@@ -1,5 +1,9 @@
-oldvmlinuz=`cat grub.conf  |grep -m 1 vmlinuz-2 | awk -F" "  '{print $2}'`
+set -x
+oldvmlinuz=`cat /var/www/html/customer/tnt/gbahel274/grub.conf  |grep -m 1 vmlinuz-2 | awk -F" "  '{print $2}'`
 newvmlinuz="vmlinuz-\${host}-\${image}"
-kernelline=`cat grub.conf |grep -m 1 vmlinuz-2`
-sed -i "s;initrd*g;$kernelline\n&;" postrestore.sh
-sed -i "s;$oldvmlinuz;$newvmlinuz;g" postrestore.sh
+kernelline=`cat /var/www/html/customer/tnt/gbahel274/grub.conf |grep -m 1 vmlinuz-2`
+#sed -i "s;vmchangeit;$kernelline;g" /var/www/html/customer/tnt/gbahel274/postrestore.sh
+sed -i "s;vmchangeit;$kernelline;g" /var/www/html/customer/tnt/gbahel274/postrestore.sh
+sed -i "s;$oldvmlinuz;$newvmlinuz;g" /var/www/html/customer/tnt/gbahel274/postrestore.sh
+sed -i "s;LABEL=/;/dev/vg00/tntroot;g" /var/www/html/customer/tnt/gbahel274/postrestore.sh
+sed -i "s;rootfilehere;/dev/vg00/tntroot;g" /var/www/html/customer/tnt/gbahel274/postrestore.sh

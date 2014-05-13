@@ -16,6 +16,7 @@ OS2=$(grep url /var/www/html/ksfiles/$3/$2.cfg | awk -Fimages/ '{print $2}' |sed
 if [ $# != 4 ] ; then
     if [ "$3" != generic ] ; then 
         echo "usage is #kickcfg {server} {build} {customer} {os}"
+        echo "or #kickcfg {server} {os} generic"
         exit
     else
         OS=$BUILD
@@ -70,10 +71,6 @@ fi
 
 
 
-if [ "$OS" != "$OS2" ] ; then
-    echo "looks like customer has upgraded since last time, before they were using $OS2. check which version is actually is and if its the newer one, youll need to run ksupdate, eg #ksupdate $2 $3 $4 (note - i havent written this yet, so you could just go edit /var/www/html/ksfiles/$3/$2.cfg for now but be careful if its a major upgrade rather than a minor"
-    exit
-fi
 
 
 
@@ -106,6 +103,12 @@ if [ ! -e "${BUILDDIR}/$3/$2" ] ; then
 	echo
 exit
 fi
+
+if [ "$OS" != "$OS2" ] ; then
+    echo "looks like customer has upgraded since last time, before they were using $OS2. check which version is actually is and if its the newer one, youll need to run ksupdate, eg #ksupdate $2 $3 $4 (note - i havent written this yet, so you could just go edit /var/www/html/ksfiles/$3/$2.cfg for now but be careful if its a major upgrade rather than a minor"
+    exit
+fi
+
 
 echo $SERVER $BUILD $CUSTOMER
 

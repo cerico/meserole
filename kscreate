@@ -4,8 +4,8 @@ server=${2:?no server specified}
 os=${3:?no os specified}
 if (($# > 3)); then echo USAGE 1>&2; exit; fi
 count=70
-vgs=/var/www/html/customer/$customer/$server-vgs
-mapper=/var/www/html/customer/$customer/$server-mapper
+vgs=/var/www/html/customer/$customer/$server/$server-vgs
+mapper=/var/www/html/customer/$customer/$server/$server-mapper
 
 files_in_place () {
     if [ -f $vgs ]  && [ -f $vgs ] ; then
@@ -59,7 +59,7 @@ area_setup () {
 
 make_volume_groups (){
     ondsk=$(grep -m 1 ondisk /var/www/html/ksfiles/generic/$os.cfg | awk -F= '{print $2}')
-    for i in `cat $vgs | grep -v VG |awk -F" " '{print $6}' | sed  's/[a-z]$//'`
+    for i in `cat $vgs | grep -v VG |awk -F" " '{print $6}' | sed  's/[a-zA-Z]$//'`
         do 
             let count=count+1
             j=$(echo "$i * 1100" | bc | awk -F. '{print $1}')
@@ -80,11 +80,15 @@ and_logvols() {
                    vegee=$(echo $line | grep mapper | awk -F" " '{print $1}'| awk -F/ '{print $4}'|awk -F- '{print $1}')
                    elvee=$(echo $line | grep mapper | awk -F" " '{print $1}'| awk -F/ '{print $4}'|awk -F- '{print $2}')
                    mont=$(echo $line | grep mapper | awk -F" " '{print $6}')
-                   flsz=$(echo $line | grep mapper | awk -F" " '{print $4}')
+                   flsz=$(echo $line | grep mapper | awk -F" " '{print $2}')
                    echo $vegee $elvee $mont $flsz >> ui
-                   sed -i "s;logvol swap*;logvol /$server$mont --fstype ext4 --name=$elvee --vgname=$vegee --size=$flsz\n&;" $bogs
+                   sed -i "s;logvol swap*;logvol /restorepoint$mont --fstype ext4 --name=$elvee --vgname=$vegee --size=$flsz\n&;" $bogs
                    done
-               exit
+               and_postinstalls
+}
+
+and_postinstalls() {
+    sed -i "s;  echo*;  wget http://172.17.4.227/customer/$customer/$server/postrestore.sh\n&;" $bogs
 }
 
 files_in_place
