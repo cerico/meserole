@@ -159,23 +159,33 @@ fi
 
 if [ ! -e "${PXE}/${SERVER}" ] ; then
 
-      printf "$SERVER hasn't been kickstarted before. Create pxefile? ([Y]/n) "
-      read res
-      	if [ "${res}" = "" -o "`lowercase ${res}`" = "y" ]; then
-      		echo -n "Enter MAC address of $SERVER?"
-      		read MAC 
-  	fi 
+     echo
+     echo
+     echo "this server is unknown, please run following command to add the server, then rerun kickcfg command"
+     echo
+     echo
+     echo "#serveradd $1 mac-address"
+     echo
+     echo
+     exit
 #
-	if [ "$(echo "$MAC" | wc -m)" -eq 13 ] ; then
-		ADDRESS=$(echo $MAC | tr A-Z a-z | awk '{print(substr($0,0,2))"-"(substr($0,3,2))"-"(substr($0,5,2))"-"(substr($0,7,2))"-"(substr($0,9,2))"-"(substr($0,11,2))}')
-		#ADDRESS=$(echo $MAC | tr A-Z a-z | tr \: \-)
-		touch ${TFTP}/01-${ADDRESS}
-		ln -fs ${TFTP}/01-${ADDRESS} ${PXE}/$SERVER
-
-		echo creating new kickstart file for $SERVER and $BUILD
-		echo $SERVER `changeit $ADDRESS`   >> /var/www/html/pxefiles/.sungardservers
-		echo $SERVER $BUILD  $(date |awk '{print(substr($2,0,3),(substr($3,0,2)),(substr($4,0,5)),(substr($6,0,4)))}') $USER $CUSTOMER  >> /var/www/html/pxefiles/lastkicked
-
+#      printf "$SERVER hasn't been kickstarted before. Create pxefile? ([Y]/n) "
+#      read res
+#      	if [ "${res}" = "" -o "`lowercase ${res}`" = "y" ]; then
+#      		echo -n "Enter MAC address of $SERVER?"
+#      		read MAC 
+#  	fi 
+##
+#	if [ "$(echo "$MAC" | wc -m)" -eq 13 ] ; then
+#		ADDRESS=$(echo $MAC | tr A-Z a-z | awk '{print(substr($0,0,2))"-"(substr($0,3,2))"-"(substr($0,5,2))"-"(substr($0,7,2))"-"(substr($0,9,2))"-"(substr($0,11,2))}')
+#		#ADDRESS=$(echo $MAC | tr A-Z a-z | tr \: \-)
+#		touch ${TFTP}/01-${ADDRESS}
+#		ln -fs ${TFTP}/01-${ADDRESS} ${PXE}/$SERVER
+#
+#		echo creating new kickstart file for $SERVER and $BUILD
+#		echo $SERVER `changeit $ADDRESS`   >> /var/www/html/pxefiles/.sungardservers
+#		echo $SERVER $BUILD  $(date |awk '{print(substr($2,0,3),(substr($3,0,2)),(substr($4,0,5)),(substr($6,0,4)))}') $USER $CUSTOMER  >> /var/www/html/pxefiles/lastkicked
+#
 # this basically does same as previous section but if user input has 
 # 17 characters it passes it straight
 # to output as it assumes input contains the dashes between the characters
@@ -184,22 +194,22 @@ if [ ! -e "${PXE}/${SERVER}" ] ; then
 # it also converts the dashes to colons for the sungardservers file as 
 # SERVER script on target box 
 # prefers it that way
-
-	elif [ "$(echo "$MAC" | wc -m)" -eq 18 ] ; then
-		ADDRESS=$(echo $MAC | tr A-Z a-z | tr \: \-)
-		touch ${TFTP}/01-${ADDRESS}
-		ln -fs ${TFTP}/01-${ADDRESS} ${PXE}/$SERVER
-
-		echo creating new kickstart file for $SERVER and $BUILD
-		echo $SERVER `changeit $ADDRESS`  >> /var/www/html/pxefiles/.sungardservers
-		echo $SERVER $2  $(date |awk '{print(substr($2,0,3),(substr($3,0,2)),(substr($4,0,5)),(substr($6,0,4)))}') $USER $CUSTOMER  >> /var/www/html/pxefiles/lastkicked
-	else
-		echo  "Illegal MAC address supplied."
-		exit
-	fi
-	else
-		echo creating new kickstart file for $SERVER and $BUILD
-		echo $SERVER $BUILD $(date |awk '{print(substr($2,0,3),(substr($3,0,2)),(substr($4,0,5)),(substr($6,0,4)))}') $USER $CUSTOMER  >> /var/www/html/pxefiles/lastkicked
+#
+#	elif [ "$(echo "$MAC" | wc -m)" -eq 18 ] ; then
+#		ADDRESS=$(echo $MAC | tr A-Z a-z | tr \: \-)
+#		touch ${TFTP}/01-${ADDRESS}
+#		ln -fs ${TFTP}/01-${ADDRESS} ${PXE}/$SERVER
+#
+#		echo creating new kickstart file for $SERVER and $BUILD
+#		echo $SERVER `changeit $ADDRESS`  >> /var/www/html/pxefiles/.sungardservers
+#		echo $SERVER $2  $(date |awk '{print(substr($2,0,3),(substr($3,0,2)),(substr($4,0,5)),(substr($6,0,4)))}') $USER $CUSTOMER  >> /var/www/html/pxefiles/lastkicked
+#	else
+#		echo  "Illegal MAC address supplied."
+#		exit
+#	fi
+#	else
+#		echo creating new kickstart file for $SERVER and $BUILD
+#		echo $SERVER $BUILD $(date |awk '{print(substr($2,0,3),(substr($3,0,2)),(substr($4,0,5)),(substr($6,0,4)))}') $USER $CUSTOMER  >> /var/www/html/pxefiles/lastkicked
 	fi
 
 
